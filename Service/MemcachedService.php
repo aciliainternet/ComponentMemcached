@@ -2,6 +2,7 @@
 namespace Acilia\Component\Memcached\Service;
 
 use Memcached;
+use DateTime;
 use Exception;
 
 class MemcachedService
@@ -38,7 +39,7 @@ class MemcachedService
     		return false;
     	}
 
-    	return $this->instance->add($key, $value, $expiration * 60);
+    	return $this->instance->add($key, $value, $this->calculateTime($expiration));
     }
 
     public function set($key, $value, $expiration = 0)
@@ -47,7 +48,7 @@ class MemcachedService
     		return false;
     	}
 
-    	return $this->instance->set($key, $value, $expiration * 60);
+    	return $this->instance->set($key, $value, $this->calculateTime($expiration));
     }
 
     public function get($key)
@@ -85,5 +86,17 @@ class MemcachedService
     	}
 
     	return $this->instance->delete($key, 0);
+    }
+
+    protected function calculateTime($expiration = 0)
+    {
+        if ($expiration = 0) {
+            return 0;
+        }
+
+        $date = new DateTime();
+        $date->modify('+' . $expiration . ' minutes');
+
+        return $date->getTimestamp();
     }
 }
