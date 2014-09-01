@@ -90,7 +90,7 @@ class MemcachedService
 
     protected function calculateTime($expiration = 0)
     {
-        if ($expiration = 0) {
+        if ($expiration == 0) {
             return 0;
 
         } else if (($expiration * 60) >= 2592000) {
