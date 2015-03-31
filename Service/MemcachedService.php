@@ -7,20 +7,19 @@ use Exception;
 
 class MemcachedService
 {
-	protected $instance;
-	protected $enabled;
+    protected $instance;
+    protected $enabled;
 
-	public function __construct($servers, $environment, $debug = false, $prefix = 'acilia-cb', $enabled = true)
-	{
-		if (!class_exists('Memcached')) {
-			$this->enabled = false;
+    public function __construct($servers, $environment, $debug = false, $prefix = 'acilia-cb', $enabled = true)
+    {
+        if (!class_exists('Memcached')) {
+            $this->enabled = false;
 
             if ($debug == true) {
-            	throw new Exception('Class "Memcached" is not defined. Please verify that PHP Memcached Module is enabled!');
+                throw new Exception('Class "Memcached" is not defined. Please verify that PHP Memcached Module is enabled!');
             }
-
-		} else {
-			$this->enabled = $enabled;
+        } else {
+            $this->enabled = $enabled;
             $this->instance = new Memcached('storage_pool');
 
             $this->instance->setOption(Memcached::OPT_COMPRESSION, true);
@@ -30,70 +29,69 @@ class MemcachedService
             $this->instance->setOption(Memcached::OPT_NO_BLOCK, true);
 
             $this->instance->addServers($servers);
-		}
-	}
+        }
+    }
 
     public function add($key, $value, $expiration = 0)
     {
-    	if ($this->enabled === false) {
-    		return false;
-    	}
+        if ($this->enabled === false) {
+            return false;
+        }
 
-    	return $this->instance->add($key, $value, $this->calculateTime($expiration));
+        return $this->instance->add($key, $value, $this->calculateTime($expiration));
     }
 
     public function set($key, $value, $expiration = 0)
     {
-    	if ($this->enabled === false) {
-    		return false;
-    	}
+        if ($this->enabled === false) {
+            return false;
+        }
 
-    	return $this->instance->set($key, $value, $this->calculateTime($expiration));
+        return $this->instance->set($key, $value, $this->calculateTime($expiration));
     }
 
     public function get($key)
     {
-    	if ($this->enabled === false) {
-    		return null;
-    	}
+        if ($this->enabled === false) {
+            return null;
+        }
 
-    	return $this->instance->get($key);
+        return $this->instance->get($key);
     }
 
     public function increment($key, $offset = 1)
     {
-    	if ($this->enabled === false) {
-    		return false;
-    	}
+        if ($this->enabled === false) {
+            return false;
+        }
 
-    	$this->instance->add($key, 0, 0);
-    	return $this->instance->increment($key, $offset);
+        $this->instance->add($key, 0, 0);
+        return $this->instance->increment($key, $offset);
     }
 
     public function notFound()
     {
-    	if ($this->enabled === false) {
-    		return true;
-    	}
+        if ($this->enabled === false) {
+            return true;
+        }
 
-    	return ($this->instance->getResultCode() !== Memcached::RES_SUCCESS);
+        return ($this->instance->getResultCode() !== Memcached::RES_SUCCESS);
     }
 
     public function delete($key)
     {
-    	if ($this->enabled === false) {
-    		return false;
-    	}
+        if ($this->enabled === false) {
+            return false;
+        }
 
-    	return $this->instance->delete($key, 0);
+        return $this->instance->delete($key, 0);
     }
 
     protected function calculateTime($expiration = 0)
     {
         if ($expiration == 0) {
             return 0;
-
-        } else if (($expiration * 60) >= 2592000) {
+        } elseif (($expiration * 60) >= 2592000) {
             return 0;
         }
 
